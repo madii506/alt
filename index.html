@@ -388,7 +388,7 @@ $('#footAv').innerHTML = anonSVG('alt');
 
 // ------------------------------------------------------------------ chain strip
 async function loadStrip() {
-  try { const j = await (await fetch('/api/chain')).json(); if (j.block) { $('#sBlock').textContent = 'block ' + fmtN(j.block); $('#sGas').textContent = j.gas != null ? Number(j.gas).toFixed(3) + ' gwei' : '—'; } else { $('#sBlock').textContent = 'block —'; } } catch (e) { $('#sBlock').textContent = 'block —'; }
+  try { const j = await (await fetch('/api/chain')).json(); if (j.block) { $('#sBlock').textContent = 'block ' + fmtN(j.block); const gp = j.gas && typeof j.gas === 'object' ? j.gas.price : j.gas; $('#sGas').textContent = gp != null ? Number(gp).toFixed(2) + ' gwei' : '—'; } else { $('#sBlock').textContent = 'block —'; } } catch (e) { $('#sBlock').textContent = 'block —'; }
 }
 
 // ------------------------------------------------------------------ the board
