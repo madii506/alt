@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALT docs</title>
+<meta name="description" content="How ALT works: the rule, the 1% split, launching a coin on an anon, the registry, the claim protocol and the public data readers.">
+<meta name="theme-color" content="#F3F0E6">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=2">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png?v=2">
+<style>
+@font-face{font-family:Instrument;src:url(assets/fonts/instrument.woff2) format('woff2');font-display:swap}
+@font-face{font-family:Inter;font-weight:500;src:url(assets/fonts/inter-500.woff2) format('woff2');font-display:swap}
+@font-face{font-family:Inter;font-weight:600;src:url(assets/fonts/inter-600.woff2) format('woff2');font-display:swap}
+@font-face{font-family:Inter;font-weight:800;src:url(assets/fonts/inter-800.woff2) format('woff2');font-display:swap}
+:root{--cream:#F3F0E6;--paper:#FBF9F4;--ink:#111114;--acid:#E4FF47;--mute:#6B6B70;--line:#E1DDD1}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--cream);color:var(--ink);font:500 16px/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{margin:0;font-weight:400}
+.serif{font-family:Instrument,Georgia,serif;text-transform:uppercase;letter-spacing:-.01em;line-height:.96}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:12px;z-index:30;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
+nav ul{list-style:none;margin:0;padding:6px 8px;display:flex;gap:2px;background:rgba(251,249,244,.8);backdrop-filter:blur(14px);border:1px solid rgba(17,17,20,.12);border-radius:999px;box-shadow:0 10px 30px rgba(17,17,20,.08);pointer-events:auto;max-width:100%;overflow-x:auto}
+nav a{display:block;padding:10px 16px;border-radius:999px;font:600 13px/1 Inter;color:var(--ink);text-decoration:none;white-space:nowrap;letter-spacing:.02em}
+nav a:hover{background:rgba(17,17,20,.06)}
+nav a.on{background:var(--ink);color:#fff}
+nav a.back{background:var(--acid);margin-right:4px}nav a.back:hover{background:#eeff7a}
+.top{padding:110px 0 60px;border-bottom:1px solid var(--line)}
+.top h1{font-size:clamp(56px,7.5vw,110px)}
+.top p{font-size:clamp(17px,1.6vw,20px);color:#2B2B30;max-width:640px;margin:22px 0 0}
+.top .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:#EEEBDF;color:#3B3B40;font:600 12px/1 Inter;letter-spacing:.02em;white-space:nowrap;text-decoration:none}
+.chip.ink{background:var(--ink);color:#fff}.chip.acid{background:var(--acid);color:var(--ink)}
+.chip a{text-decoration:none}
+.body{display:grid;grid-template-columns:240px 1fr;gap:64px;padding:60px 0 120px}
+@media(max-width:900px){.body{grid-template-columns:1fr;gap:20px}}
+.toc{position:sticky;top:90px;align-self:start;display:grid;gap:2px}
+@media(max-width:900px){.toc{position:static;display:flex;flex-wrap:wrap;gap:6px}}
+.toc a{padding:8px 12px;border-radius:10px;font:600 13px/1.3 Inter;color:var(--mute);text-decoration:none}
+.toc a:hover{background:rgba(17,17,20,.05);color:var(--ink)}
+.toc a.on{background:var(--ink);color:#fff}
+.doc{max-width:760px}
+.doc section{padding:0 0 64px;margin-bottom:64px;border-bottom:1px solid var(--line);scroll-margin-top:24px}
+.doc section:last-child{border-bottom:0}
+.doc h2{font-size:clamp(38px,4.6vw,60px);margin-bottom:22px}
+.doc p{margin:0 0 16px;color:#2B2B30}
+.doc p.mute{color:var(--mute);font-size:14px}
+.doc b{font-weight:800}
+.rule{margin:24px 0}
+.rule div{display:grid;grid-template-columns:64px 1fr;gap:16px;padding:18px 0;border-top:1px solid var(--line);font-size:18px}
+.rule div:last-child{border-bottom:1px solid var(--line)}
+.rule i{font-family:Instrument,Georgia,serif;font-style:normal;font-size:28px}
+.fee{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px;margin:20px 0}
+.fee .bar{display:flex;height:14px;border-radius:999px;overflow:hidden;margin:2px 0 14px}
+.fee .bar i{display:block;height:100%}
+.fee .leg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:13px}
+.fee .leg b{display:block;font-family:Instrument,Georgia,serif;font-size:26px;font-weight:400;line-height:1;margin-bottom:4px}
+.steps{counter-reset:s;display:grid;gap:10px;margin:20px 0}
+.steps div{display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.steps div::before{counter-increment:s;content:counter(s,decimal-leading-zero);font:800 11px/1 Inter;background:var(--ink);color:var(--acid);border-radius:999px;padding:8px 0;text-align:center;letter-spacing:.06em;margin-top:2px}
+.steps p{margin:0;font-size:15px}
+pre{margin:16px 0;padding:18px;background:var(--ink);color:#EDEDF0;border-radius:16px;font:500 13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-x:auto;white-space:pre}
+pre .c{color:#9A9AA3}pre .y{color:var(--acid)}
+code{font:600 .92em ui-monospace,SFMono-Regular,Menlo,monospace;background:#EAE7DB;padding:2px 6px;border-radius:6px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+th{font:600 11px/1 Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);border-top:0}
+tr:last-child td{border-bottom:1px solid var(--line)}
+td code{white-space:nowrap}
+.tbl{overflow-x:auto}
+.ep{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:22px 0 8px}
+.ep code{font-size:15px;background:var(--acid)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;font:600 13px/1 Inter;text-decoration:none;border:1.5px solid var(--ink);color:var(--ink);white-space:nowrap}
+.btn:hover{background:var(--ink);color:#fff}
+.out{margin:8px 0 18px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:14px;font:500 13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-all;color:#2B2B30;min-height:44px}
+.out.bad{border-color:#C62828}
+.log div{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line);font-size:15px}
+.log div:last-child{border-bottom:1px solid var(--line)}
+.log span{color:var(--mute);font-variant-numeric:tabular-nums;font-size:13px;padding-top:3px}
+footer{padding:64px 0;text-align:center;color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+
+<nav><ul>
+  <li><a class="back" href="./">← alt</a></li>
+  <li><a href="#rule">rule</a></li>
+  <li><a href="#fees">fees</a></li>
+  <li><a href="#launch">launch</a></li>
+  <li><a href="#claim">claim</a></li>
+  <li><a href="#data">data</a></li>
+</ul></nav>
+
+<header class="top"><div class="wrap">
+  <h1 class="serif">Docs.</h1>
+  <p>Everything the site does, written down so it can be checked. Every number on ALT is read from X, from Robinhood Chain or from Dexscreener; nothing on this page or the site is typed in by hand except the registry, and the registry is public.</p>
+  <div class="meta"><span class="chip ink">Robinhood Chain · id 4663</span><span class="chip">Pons v2 launchpad</span><span class="chip">no keys, no login</span><span class="chip acid" id="ver">docs · 2026-09-13</span></div>
+</div></header>
+
+<div class="wrap body">
+  <aside class="toc" id="toc">
+    <a href="#what">What ALT is</a><a href="#rule">The rule</a><a href="#fees">The 1%</a><a href="#launch">Launching</a><a href="#registry">The registry</a><a href="#claim">Claiming</a><a href="#pf">Per follower</a><a href="#data">Data readers</a><a href="#honest">Not on chain yet</a><a href="#log">Changelog</a>
+  </aside>
+
+  <div class="doc">
+
+  <section id="what">
+    <h2 class="serif">What ALT is.</h2>
+    <p>ALT is a launchpad on Robinhood Chain built on Pons. A coin on ALT is paired to an anonymous X account — an <b>alt</b>. Anyone can launch a coin on any public account; the account doesn't have to agree and doesn't have to know. Every trade pays a fee, and half of it waits in a vault that only that account can open. The account opens it by proving, in public, that it is the account: it posts a code. That is the whole product.</p>
+    <p>The board on the front page lists real accounts, read live from X. Add any handle and it's read the same way. A row shows followers, and once a coin exists on the alt, its market cap and market cap per follower. Until then the row says "no coin yet". There are no placeholder numbers anywhere on the site.</p>
+  </section>
+
+  <section id="rule">
+    <h2 class="serif">The rule.</h2>
+    <p>Four lines. Everything else follows from them.</p>
+    <div class="rule">
+      <div><i>I.</i><span>Every alt is a coin. Anyone can launch one on any anon.</span></div>
+      <div><i>II.</i><span>Every trade pays 1%: half waits for the anon, a fifth pays the launcher, the rest is Pons.</span></div>
+      <div><i>III.</i><span>Only the anon can claim. A post with the code, verified from X.</span></div>
+      <div><i>IV.</i><span>Market cap per follower, not market cap. Read from the chain and from X, never typed in.</span></div>
+    </div>
+  </section>
+
+  <section id="fees">
+    <h2 class="serif">The 1%.</h2>
+    <p>Pons charges 1% on every trade of a coin it launched. Pons keeps 0.3% and pays 0.7% to the coin's <code>creatorFeeRecipient</code>. On ALT the recipient of every coin is the ALT vault wallet, and the vault splits its 0.7% two ways.</p>
+    <div class="fee"><div class="bar"><i style="width:50%;background:var(--acid)"></i><i style="width:20%;background:var(--ink)"></i><i style="width:30%;background:#B9B5A8"></i></div><div class="leg"><div><b>0.5%</b>of every trade waits in the anon's vault</div><div><b>0.2%</b>of every trade to the launcher</div><div><b>0.3%</b>of every trade to Pons</div></div></div>
+    <p>Fees are paid in the stock the coin is paired to — the launcher picks it at launch (COIN, NVDA, TSLA, and so on). A coin's 24-hour vault income on the site is <code>volume24 × 0.005</code> and the launcher's is <code>volume24 × 0.002</code>, with <code>volume24</code> read from Dexscreener. They are estimates from volume; the actual transfers are the transactions the vault posts.</p>
+    <p>The vault wallet address is published on the front page and pinned on X at launch. Until then the launch form shows "announced at launch" and the copy button is hidden.</p>
+  </section>
+
+  <section id="launch">
+    <h2 class="serif">Launching.</h2>
+    <p>Launching happens on Pons; ALT prepares the form and lists the result. The site never touches a wallet.</p>
+    <div class="steps">
+      <div><p><b>Pick the alt.</b> Type any X handle. The site reads the account from X's public data and shows the name, avatar and followers so you know you have the right one.</p></div>
+      <div><p><b>Name the coin, pick the stock.</b> Coin name, ticker, and the stock the coin pays in. Optionally your wallet — it gets the launcher's 0.2%.</p></div>
+      <div><p><b>Copy the description.</b> The site writes the Pons description in a fixed format (below). It is how we recognise an ALT coin on chain, so paste it unchanged.</p></div>
+      <div><p><b>Launch on Pons.</b> Open the Pons launch form, paste the description, set the fee recipient to the ALT vault wallet, choose the same stock, and launch.</p></div>
+      <div><p><b>Register the address.</b> Paste the new contract address back on the site. It's read from Blockscout and Dexscreener on the spot, and a "tell the anon" post is prepared for X.</p></div>
+      <div><p><b>Listed within the hour.</b> We check the description and the fee recipient on chain and add the coin to the registry. From then on its row reads live.</p></div>
+    </div>
+    <p>The description format:</p>
+<pre>ALT · @<span class="y">handle</span> · pays in $<span class="y">STOCK</span> · launcher <span class="y">0x…</span> · every trade pays 1%: 0.5% waits in the anon's vault, 0.2% to the launcher, 0.3% to Pons · every alt is a coin.</pre>
+    <p class="mute">A coin whose fee recipient is not the ALT vault is not an ALT coin, whatever its description says, and is not listed.</p>
+  </section>
+
+  <section id="registry">
+    <h2 class="serif">The registry.</h2>
+    <p>Two public JSON files in the site's repository. They are the only hand-written data on ALT, and both are readable by anyone.</p>
+    <div class="ep"><code>alts.json</code><a class="btn" href="alts.json" target="_blank" rel="noopener">open ↗</a><a class="btn" href="https://github.com/madii506/alt/blob/main/alts.json" target="_blank" rel="noopener">history on GitHub ↗</a></div>
+<pre>[
+  {
+    "ca":      "0x…",            <span class="c">// the coin's contract on Robinhood Chain</span>
+    "handle":  "anon",           <span class="c">// the alt, without the @</span>
+    "ticker":  "ANON",
+    "name":    "Anon Coin",
+    "stock":   "COIN",           <span class="c">// what it pays in</span>
+    "listed":  "2026-09-13",
+    "pool":    "https://…",      <span class="c">// optional: the Pons trade page</span>
+    "claimed": "0x…"             <span class="c">// optional: set once the anon has claimed — the wallet paid</span>
+  }
+]</pre>
+    <div class="ep"><code>claims.json</code><a class="btn" href="claims.json" target="_blank" rel="noopener">open ↗</a></div>
+<pre>[
+  { "handle": "anon", "t": "2026-09-13 14:00", "amount": "412.10", "stock": "COIN", "tx": "https://robinhoodchain.blockscout.com/tx/0x…" }
+]</pre>
+    <p>Both files are empty today. A coin is listed once its description and fee recipient check out on chain; a claim is added once the vault has paid and the transaction exists.</p>
+  </section>
+
+  <section id="claim">
+    <h2 class="serif">Claiming.</h2>
+    <p>The vault has one key: the account itself. No wallet signature, no DM, no admin. The account proves it's the account by posting a code that only its handle and its chosen wallet can produce.</p>
+    <div class="steps">
+      <div><p><b>Code.</b> On the site, enter your handle and the wallet to pay. The code is computed in your browser — nothing is sent anywhere.</p></div>
+      <div><p><b>Post.</b> Post the code from the account. A reply, a quote, a fresh post — anything public.</p></div>
+      <div><p><b>Verify.</b> Paste the post's URL. The site reads the post from X's public syndication endpoint and checks two things: the author is your handle, and the text contains the code.</p></div>
+      <div><p><b>Paid.</b> The vault pays your wallet at the next hourly sweep, the transaction goes into <code>claims.json</code>, and the row turns "claimed".</p></div>
+    </div>
+    <p>The code is deterministic, so anyone can recompute it. It is the FNV-1a 32-bit hash of <code>lowercase(handle) + "|" + lowercase(wallet)</code>, written in base 36, upper-cased, seven characters, prefixed <code>ALT-</code>:</p>
+<pre>function hash(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+function claimCode(handle, wallet) {
+  const h = hash(handle.toLowerCase() + '|' + wallet.toLowerCase());
+  return 'ALT-' + h.toString(36).toUpperCase().padStart(7, '0').slice(0, 7);
+}</pre>
+    <p>Try it — the same function, running here:</p>
+    <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:10px"><input id="dh" placeholder="@handle" maxlength="16" style="padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);font:500 15px Inter;outline:none"><input id="dw" placeholder="0x… wallet to pay" maxlength="42" style="padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);font:500 15px Inter;outline:none"></div>
+    <div class="out" id="dcode">enter a handle and a wallet</div>
+    <p class="mute">Why not a wallet signature? Because the vault belongs to the account, not to whoever holds a wallet. A wallet can't prove it's @anon. A post from @anon can.</p>
+  </section>
+
+  <section id="pf">
+    <h2 class="serif">Per follower.</h2>
+    <p>The headline number on every alt is market cap divided by followers, both read live:</p>
+<pre>per_follower = mcap (Dexscreener, USD) / followers (X, public profile)</pre>
+    <p>A $100K coin on a 10K-follower alt is $10 a follower. A $100K coin on a 1M-follower alt is 10¢ a follower. Market cap says how big a coin is; per follower says how much of the account's audience has been priced in. It is the number to compare alts by, and the reason the board is sorted by it once coins exist.</p>
+    <p>Followers are cached for five minutes; market cap for thirty seconds. If X doesn't answer for an account, the row says "followers not exposed" and per follower is "—". A dash is never replaced with a guess.</p>
+  </section>
+
+  <section id="data">
+    <h2 class="serif">Data readers.</h2>
+    <p>Four small serverless readers on the site's own domain. No API keys, no accounts; they read public endpoints and pass the numbers through. Each one below runs live when you press <b>try</b>.</p>
+
+    <div class="ep"><code>GET /api/handle?h=&lt;handle&gt;</code><button class="btn" type="button" data-try="/api/handle?h=Cupseyy">try @Cupseyy</button></div>
+    <p>An X account's public profile. Source: FxTwitter's public user endpoint, with X's follow-button and syndication timeline endpoints as fallbacks. Cached 5 min.</p>
+    <div class="tbl"><table><tr><th>field</th><th>meaning</th></tr><tr><td><code>followers</code></td><td>follower count</td></tr><tr><td><code>name</code></td><td>display name</td></tr><tr><td><code>avatar</code></td><td>profile image URL (the site swaps <code>_normal</code> for <code>_400x400</code>)</td></tr><tr><td><code>verified</code></td><td>blue check</td></tr><tr><td><code>exists</code></td><td><code>true</code>, <code>false</code> (no such account) or <code>null</code> (X didn't answer)</td></tr><tr><td><code>src</code></td><td>which source answered</td></tr></table></div>
+    <div class="out" id="o-handle" hidden></div>
+
+    <div class="ep"><code>GET /api/coin?ca=&lt;address&gt;</code><button class="btn" type="button" data-try="/api/coin?ca=0x0000000000000000000000000000000000000000">try (zero address)</button></div>
+    <p>A token on Robinhood Chain. Sources: Blockscout (<code>name</code>, <code>symbol</code>, <code>holders</code>, <code>supply</code>) and Dexscreener (<code>price</code>, <code>mcap</code>, <code>liquidity</code>, <code>volume24</code>, <code>change24</code>, <code>chart</code>). Adds <code>vaultIncome24</code> (volume × 0.005) and <code>launcherIncome24</code> (volume × 0.002). Cached 30 s. A coin with no Dexscreener pair yet returns <code>"dex": "no pair yet"</code>.</p>
+    <div class="out" id="o-coin" hidden></div>
+
+    <div class="ep"><code>GET /api/tweet?id=&lt;id&gt;</code> <span style="color:var(--mute);font-size:13px">or</span> <code>?url=&lt;post url&gt;</code><button class="btn" type="button" data-try="/api/tweet?id=20">try id 20</button></div>
+    <p>A public post. Source: X's syndication <code>tweet-result</code> endpoint, with oEmbed as fallback. Returns <code>author</code>, <code>name</code>, <code>text</code>, <code>created</code>, <code>likes</code>, <code>views</code>, <code>inReplyTo</code>. This is what verifies a claim: the author must equal the handle, the text must contain the code. Cached 20 s.</p>
+    <div class="out" id="o-tweet" hidden></div>
+
+    <div class="ep"><code>GET /api/chain</code><button class="btn" type="button" data-try="/api/chain">try</button></div>
+    <p>Robinhood Chain stats from Blockscout: <code>block</code>, <code>txs</code>, <code>addresses</code>, <code>gas</code>. Cached 30 s.</p>
+    <div class="out" id="o-chain" hidden></div>
+
+    <p class="mute">All four send <code>Access-Control-Allow-Origin: *</code>, so anyone can read them from anywhere. Source code: <a href="https://github.com/madii506/alt/tree/main/api" target="_blank" rel="noopener">github.com/madii506/alt/api</a>.</p>
+  </section>
+
+  <section id="honest">
+    <h2 class="serif">Not on chain yet.</h2>
+    <p>Two things are done by hand today, and both are posted.</p>
+    <p><b>The split.</b> Pons pays the 0.7% to one wallet. That wallet — the ALT vault — pays launchers their 0.2% and holds the anons' 0.5% per alt. It sweeps every hour and every transaction is posted on X and in <code>claims.json</code>. The vault contract that does this automatically is the next thing shipped; the fee recipient of every coin will then be moved to it.</p>
+    <p><b>The listing.</b> A launched coin is added to <code>alts.json</code> after a person checks that its description and fee recipient match. That check can be automated from the same Blockscout data the site already reads, and will be.</p>
+    <p>What is <i>not</i> hand-made: followers, market caps, per-follower prices, holders, volumes, claim verification. If a number can be read, it is read.</p>
+  </section>
+
+  <section id="log">
+    <h2 class="serif">Changelog.</h2>
+    <div class="log">
+      <div><span>2026-09-13</span><p style="margin:0">Site v2: board of real accounts read live from X, live hero card, launch form with handle check and on-chain registration, claim codes and verification from X, this docs page. No coins listed yet; vault address announced at launch.</p></div>
+    </div>
+  </section>
+
+  </div>
+</div>
+
+<footer>alt · every alt is a coin · <a href="./">back to the site</a></footer>
+
+<script>
+const $ = s => document.querySelector(s);
+// claim code, same function as the site
+function hash(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+function claimCode(handle, wallet) { const h = hash(handle.toLowerCase() + '|' + wallet.toLowerCase()); return 'ALT-' + h.toString(36).toUpperCase().padStart(7, '0').slice(0, 7); }
+const isAddr = s => /^0x[0-9a-fA-F]{40}$/.test(s || '');
+const cleanHandle = s => String(s || '').replace(/^@/, '').replace(/[^A-Za-z0-9_]/g, '').slice(0, 15);
+function upd() { const h = cleanHandle($('#dh').value), w = $('#dw').value.trim(); $('#dcode').textContent = !h ? 'enter a handle and a wallet' : !isAddr(w) ? 'enter a wallet (0x + 40 hex characters)' : claimCode(h, w) + '   ←  @' + h + ' posts this from the account'; }
+['dh', 'dw'].forEach(id => $('#' + id).addEventListener('input', upd));
+// live endpoint tries
+document.querySelectorAll('[data-try]').forEach(b => b.addEventListener('click', async () => {
+  const url = b.dataset.try; const key = url.split('?')[0].split('/').pop(); const out = $('#o-' + key); out.hidden = false; out.className = 'out'; out.textContent = 'GET ' + url + ' …';
+  const t0 = performance.now();
+  try { const r = await fetch(url); const j = await r.json(); out.textContent = 'GET ' + url + '  →  ' + r.status + ' · ' + Math.round(performance.now() - t0) + ' ms\n' + JSON.stringify(j, null, 2); }
+  catch (e) { out.className = 'out bad'; out.textContent = 'GET ' + url + '  →  failed: ' + (e.message || e); }
+}));
+// toc + nav state
+const links = [...document.querySelectorAll('#toc a, nav a[href^="#"]')];
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-30% 0px -60% 0px' });
+document.querySelectorAll('.doc section[id]').forEach(s => io.observe(s));
+</script>
+</body>
+</html>
