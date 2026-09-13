@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALT</title>
+<meta name="description" content="Every alt is a coin. Launch a coin on any anon account. Trades pay the anon's vault. The anon claims it only by revealing.">
+<meta property="og:title" content="ALT — every alt is a coin">
+<meta property="og:description" content="Launch a coin on any anon. Trades pay the anon's vault. The anon claims it only by revealing. Priced per follower.">
+<meta property="og:image" content="https://alt.vercel.app/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F3F0E6">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=1">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?v=1">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png?v=1">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png?v=1">
+<script>
+// ------------------------------------------------------------------
+// CONFIG — fill at launch. Rows that need a value render only when set.
+const CONFIG = {
+  ca: '',                     // $ALT contract address
+  x: '',                      // our X account url, e.g. https://x.com/useALT
+  handle: 'useALT',           // the first alt: this account
+  stock: 'COIN',              // the stock $ALT pays in
+  pool: '',                   // trade link (Pons coin page)
+  chart: '',                  // Dexscreener link
+  vault: '',                  // the ALT vault wallet — the fee recipient for every alt (announced at launch)
+  launchpad: 'https://ponsvault.com/launch',
+};
+const STOCKS = ['COIN','NVDA','TSLA','AAPL','META','AMZN','MSFT','GOOGL','AMD','NFLX','SHOP','MSTR','SPCX','TSM','RBLX','SNAP','HIMS','COST','RDDT','UPS','F','BA','INTC','SNOW','NET','PFE','LLY','JNJ','IBM','BABA','NU','GLD','SLV','QQQ','SPY','GME','AMC','DJT','CRCL','SNDK','MRVL','MRNA','FIG','BB','WYFI','SKHY','BULL','INDA','SGOV','CEG','RCAT','QUBT','LULU'];
+</script>
+<style>
+@font-face{font-family:Instrument;src:url(assets/fonts/instrument.woff2) format('woff2');font-display:swap}
+@font-face{font-family:Inter;font-weight:500;src:url(assets/fonts/inter-500.woff2) format('woff2');font-display:swap}
+@font-face{font-family:Inter;font-weight:600;src:url(assets/fonts/inter-600.woff2) format('woff2');font-display:swap}
+@font-face{font-family:Inter;font-weight:800;src:url(assets/fonts/inter-800.woff2) format('woff2');font-display:swap}
+:root{--cream:#F3F0E6;--paper:#FBF9F4;--ink:#111114;--acid:#E4FF47;--mute:#6B6B70;--line:#E1DDD1;--ink2:#1B1B20}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font:500 16px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{margin:0;font-weight:400}
+.serif{font-family:Instrument,Georgia,serif;text-transform:uppercase;letter-spacing:-.01em;line-height:.98}
+h2.serif{font-size:clamp(40px,6vw,74px)}
+.eyebrow{font:600 11px/1 Inter;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-bottom:18px;display:flex;align-items:center;gap:10px;justify-content:center}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--acid);box-shadow:0 0 0 3px rgba(228,255,71,.35)}
+.lead{max-width:640px;margin:18px auto 0;color:#3B3B40;font-size:18px;text-align:center}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+section{padding:96px 0;text-align:center}
+section.dark{background:var(--ink);color:#fff}
+section.dark .lead{color:#C9C9CF}
+section.dark .eyebrow{color:#9A9AA3}
+.rv{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+.rv.in{opacity:1;transform:none}
+
+/* nav — a glass pill, links only, centered */
+nav{position:sticky;top:12px;z-index:30;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
+nav ul{list-style:none;margin:0;padding:6px 10px;display:flex;gap:2px;background:rgba(251,249,244,.78);backdrop-filter:blur(14px);border:1px solid rgba(17,17,20,.12);border-radius:999px;box-shadow:0 10px 30px rgba(17,17,20,.08);pointer-events:auto;max-width:100%;overflow-x:auto}
+nav a,nav button{display:block;padding:10px 14px;border-radius:999px;font:600 13px/1 Inter;color:var(--ink);text-decoration:none;background:none;border:0;cursor:pointer;white-space:nowrap;letter-spacing:.02em}
+nav a:hover,nav button:hover{background:rgba(17,17,20,.06)}
+nav a.on{background:var(--ink);color:#fff}
+nav button.on{color:#7a8a00;background:var(--acid)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding:150px 0 70px;margin-top:-58px;text-align:center}
+.hero .wrap{position:relative;z-index:2}
+.hero h1{font-size:clamp(54px,9.6vw,150px)}
+.hero .rule{width:64px;height:3px;background:var(--acid);margin:26px auto}
+.hero .sub{font-size:clamp(17px,2.2vw,24px);color:#2B2B30;max-width:760px;margin:0 auto}
+.btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:32px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:999px;font:600 15px/1 Inter;text-decoration:none;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.fill{background:var(--ink);color:#fff}
+.btn.acid{background:var(--acid);border-color:var(--acid);color:var(--ink)}
+.btn.acid:hover{background:#eeff7a}
+#crowd{position:absolute;inset:0;z-index:1;pointer-events:none}
+#crowd .an{position:absolute;will-change:transform;animation:float 9s ease-in-out infinite}
+#crowd .an svg{display:block;width:100%;height:100%}
+@keyframes float{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-10px) rotate(var(--r))}}
+.glow{position:absolute;left:50%;top:50%;width:min(70vw,900px);height:min(70vw,900px);transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(228,255,71,.55),rgba(228,255,71,0));z-index:0;pointer-events:none}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.14;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.07 0 0 0 0 0.07 0 0 0 0 0.08 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* chain strip */
+.strip{background:var(--ink);color:#fff;padding:18px 0}
+.strip .wrap{display:flex;gap:0;flex-wrap:wrap;justify-content:center}
+.strip .s{padding:8px 26px;border-left:1px solid #2A2A31;text-align:left;min-width:150px}
+.strip .s:first-child{border-left:0}
+.strip .l{font:600 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:#9A9AA3;display:flex;align-items:center;gap:8px}
+.strip .l i{width:7px;height:7px;border-radius:50%;background:var(--acid);animation:blink 1.6s infinite}
+.strip .v{font:600 20px/1.2 Inter;margin-top:6px;font-variant-numeric:tabular-nums}
+@keyframes blink{50%{opacity:.25}}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:40px;text-align:left}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 12px 34px rgba(17,17,20,.06);transition:transform .2s,box-shadow .2s;position:relative}
+.card:hover{transform:translateY(-3px);box-shadow:0 22px 50px rgba(17,17,20,.10)}
+.card .top{display:flex;align-items:center;gap:14px}
+.card .av{width:64px;height:64px;flex:none}
+.card .av svg{width:100%;height:100%;display:block}
+.card .who b{display:block;font-size:18px;font-weight:800;letter-spacing:-.01em}
+.card .who span{color:var(--mute);font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:#EEEBDF;color:#3B3B40;font:600 12px/1 Inter;letter-spacing:.02em;white-space:nowrap}
+.chip.acid{background:var(--acid);color:var(--ink)}
+.chip.ink{background:var(--ink);color:#fff}
+.chip.ok{background:#DDF5D8;color:#1B5E20}
+.head{margin:18px 0 4px;display:flex;align-items:baseline;gap:10px}
+.head b{font-family:Instrument,Georgia,serif;font-size:44px;font-weight:400;letter-spacing:-.02em;line-height:1}
+.head span{color:var(--mute);font-size:13px;font-weight:600}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:14px 0;font-size:13px}
+.stats div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:6px 0}
+.stats span{color:var(--mute)}.stats b{font-weight:600;font-variant-numeric:tabular-nums}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.links a,.links button{flex:1;text-align:center;padding:10px 10px;border-radius:12px;border:1.5px solid var(--ink);font:600 13px/1 Inter;text-decoration:none;background:transparent;color:var(--ink);cursor:pointer;white-space:nowrap}
+.links a:hover,.links button:hover{background:var(--ink);color:#fff}
+.empty{margin:40px auto 0;padding:48px 24px;border:1.5px dashed var(--line);border-radius:22px;color:var(--mute);max-width:720px}
+.empty b{display:block;color:var(--ink);font-family:Instrument,Georgia,serif;font-size:30px;font-weight:400;margin-bottom:6px;text-transform:uppercase}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px;justify-content:center}
+.chips button{padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);font:600 13px/1 Inter;cursor:pointer;color:var(--ink)}
+.chips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* forms */
+.two{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:start;margin-top:40px;text-align:left}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.form{display:grid;gap:14px}
+label{display:grid;gap:6px;font:600 11px/1 Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+input,select,textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);font:500 15px/1.4 Inter;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--ink)}
+textarea{min-height:120px;resize:vertical;font-size:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.note{font-size:13px;color:var(--mute);margin-top:8px;line-height:1.55}
+.note b{color:var(--ink)}
+.sticky{position:sticky;top:86px}
+.out{margin-top:14px;padding:16px;border-radius:14px;background:var(--paper);border:1px solid var(--line);font-size:14px;text-align:left}
+.out.ok{border-color:#2E7D32}.out.bad{border-color:#C62828}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv span{color:var(--mute)}.kv b{font-weight:600;font-variant-numeric:tabular-nums;word-break:break-all}
+.code{font-family:Instrument,Georgia,serif;font-size:56px;letter-spacing:.06em;margin:8px 0;text-transform:uppercase}
+.hcheck{display:flex;align-items:center;gap:12px;margin-top:6px;font-size:13px;color:var(--mute)}
+.hcheck .av{width:36px;height:36px}
+.hcheck .av svg{width:100%;height:100%;display:block}
+
+/* steps / rule / faq */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:48px;text-align:left}
+@media(max-width:860px){.steps{grid-template-columns:1fr}}
+.step{padding:8px 28px;border-left:1px solid var(--line)}
+.step:first-child{border-left:0;padding-left:0}
+.step .n{font:600 13px/1 Inter;color:var(--mute);letter-spacing:.1em}
+.step h3{font-family:Instrument,Georgia,serif;font-size:34px;margin:12px 0 8px}
+.step p{margin:0;color:#3B3B40;font-size:15px}
+section.dark .step{border-color:#2A2A31}section.dark .step p{color:#C9C9CF}section.dark .step .n{color:#9A9AA3}
+.rule{max-width:820px;margin:44px auto 0;text-align:left}
+.rule div{display:grid;grid-template-columns:64px 1fr;gap:16px;padding:20px 0;border-top:1px solid #2A2A31;font-size:19px}
+.rule div:last-child{border-bottom:1px solid #2A2A31}
+.rule i{font-family:Instrument,Georgia,serif;font-style:normal;font-size:28px;color:var(--acid)}
+.faq{max-width:880px;margin:44px auto 0;text-align:left;display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+@media(max-width:760px){.faq{grid-template-columns:1fr}}
+.faq details{border-top:1px solid var(--line);padding:16px 0}
+.faq summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::after{content:"+";font-family:Instrument,Georgia,serif;font-size:24px;line-height:1;color:var(--mute)}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:10px 0 0;color:#3B3B40;font-size:14px}
+
+/* token */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:40px;text-align:left}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px}
+.tile .l{font:600 11px/1 Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.tile .v{font-family:Instrument,Georgia,serif;font-size:34px;margin-top:8px;word-break:break-all;line-height:1}
+.tile .v small{font:600 13px Inter;color:var(--mute)}
+.ca{display:flex;gap:10px;align-items:center;justify-content:center;margin:28px auto 0;padding:14px 16px;background:var(--paper);border:1.5px solid var(--ink);border-radius:14px;font:600 14px/1.4 Inter;word-break:break-all;max-width:820px}
+footer{padding:56px 0;text-align:center;color:var(--mute);font-size:13px}
+footer .av{width:44px;height:44px;margin:0 auto 12px}
+footer .av svg{width:100%;height:100%;display:block}
+footer .fl{display:flex;justify-content:center;gap:18px;margin-top:10px}
+footer .fl a{font-weight:600;text-decoration:none;color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font:600 13px/1 Inter;transition:.25s;pointer-events:none;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.sheet{position:fixed;inset:0;z-index:60;background:rgba(17,17,20,.6);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet.show{opacity:1;pointer-events:auto}
+.sheet .box{background:var(--cream);border-radius:24px;max-width:680px;width:100%;max-height:90vh;overflow:auto;padding:28px;position:relative;text-align:left;transform:translateY(12px);transition:transform .25s}
+.sheet.show .box{transform:none}
+.sheet .x{position:absolute;top:16px;right:16px;background:var(--ink);color:#fff;border:0;border-radius:999px;width:40px;height:40px;font:800 18px/1 Inter;cursor:pointer}
+</style>
+</head>
+<body>
+
+<nav><ul>
+  <li><a href="#alts">alts</a></li>
+  <li><a href="#launch">launch</a></li>
+  <li><a href="#claim">claim</a></li>
+  <li><a href="#rule">the rule</a></li>
+  <li><a href="#token">token</a></li>
+  <li><button id="snd" type="button" aria-pressed="false">snd</button></li>
+</ul></nav>
+
+<header class="hero">
+  <div class="glow"></div>
+  <div id="crowd" aria-hidden="true"></div>
+  <div class="grain"></div>
+  <div class="wrap">
+    <h1 class="serif">Every alt<br>is a coin.</h1>
+    <div class="rule"></div>
+    <p class="sub">Launch a coin on any anon account. Every trade pays the anon's vault. The anon claims it only by revealing.</p>
+    <div class="btns">
+      <a class="btn acid" href="#launch">Launch an alt</a>
+      <a class="btn" id="heroTrade" href="#token">Buy $ALT</a>
+      <button class="btn" id="heroCa" type="button" hidden>Copy CA</button>
+    </div>
+  </div>
+</header>
+
+<div class="strip"><div class="wrap">
+  <div class="s"><div class="l"><i></i>live on robinhood chain</div><div class="v" id="sBlock">block —</div></div>
+  <div class="s"><div class="l">alts listed</div><div class="v" id="sAlts">—</div></div>
+  <div class="s"><div class="l">unclaimed vaults</div><div class="v" id="sUnclaimed">—</div></div>
+  <div class="s"><div class="l">vault income · 24h</div><div class="v" id="sVault">—</div></div>
+  <div class="s"><div class="l">gas</div><div class="v" id="sGas">—</div></div>
+</div></div>
+
+<section id="alts">
+  <div class="wrap">
+    <div class="eyebrow"><i></i>the alts</div>
+    <h2 class="serif">Priced per follower.</h2>
+    <p class="lead">Every alt shows one number: market cap divided by the account's followers. Followers come from X, market cap from Dexscreener, holders from Blockscout — read live, never typed in.</p>
+    <div class="chips" id="sort">
+      <button data-k="pf" class="on">per follower</button>
+      <button data-k="mcap">market cap</button>
+      <button data-k="vault">vault income</button>
+      <button data-k="unclaimed">unclaimed</button>
+      <button data-k="new">newest</button>
+      <button data-k="refresh">↻ refresh</button>
+    </div>
+    <div class="grid" id="board"></div>
+    <div class="empty" id="boardEmpty" hidden><b>No alts yet.</b>The first one is @<span id="emptyHandle">useALT</span>, listed at launch. It pays in $<span id="emptyStock">COIN</span>.</div>
+  </div>
+</section>
+
+<section id="launch">
+  <div class="wrap">
+    <div class="eyebrow"><i></i>launch</div>
+    <h2 class="serif">Pick an anon.</h2>
+    <p class="lead">Type any X handle. We read the account, you name the coin and pick the stock it pays in. The description below goes into the Pons launch form. The anon doesn't have to agree, and doesn't have to know.</p>
+    <div class="two">
+      <form class="form" id="launchForm" autocomplete="off">
+        <label>The alt (X handle)<input id="fHandle" placeholder="@anon" maxlength="16" required></label>
+        <div class="hcheck" id="hcheck"><span>Type a handle and we read it from X.</span></div>
+        <div class="row2">
+          <label>Coin name<input id="fName" placeholder="Anon Coin" maxlength="32" required></label>
+          <label>Ticker<input id="fTicker" placeholder="ANON" maxlength="10" required></label>
+        </div>
+        <div class="row2">
+          <label>Pays in<select id="fStock"></select></label>
+          <label>Launcher wallet (gets 0.2%)<input id="fWallet" placeholder="0x…" maxlength="42"></label>
+        </div>
+        <label>Pons description (copy this into the launch form)<textarea id="fDesc" readonly></textarea></label>
+        <label>Fee recipient (the ALT vault — paste this as the creator fee recipient)<input id="fVault" readonly value=""></label>
+        <div class="btns" style="justify-content:flex-start;margin-top:4px">
+          <button class="btn fill" type="button" id="copyDesc">Copy description</button>
+          <button class="btn" type="button" id="copyVault">Copy vault address</button>
+          <a class="btn acid" id="openPons" href="https://ponsvault.com/launch" target="_blank" rel="noopener">Open Pons launch ↗</a>
+        </div>
+        <p class="note"><b>What happens next.</b> Launch it on Pons with that description and the ALT vault as the fee recipient. Then register the address below: we check it on chain and list the alt within the hour. From then on every trade pays 1% — 0.5% waits in the anon's vault, 0.2% goes to your launcher wallet, 0.3% to Pons. Payouts are swept every hour and posted with the transaction. The split is done by the vault wallet by hand until the vault contract ships; the ledger is public either way.</p>
+        <label style="margin-top:8px">Already launched? Register the address<input id="fCa" placeholder="0x… (the coin's contract address)" maxlength="42"></label>
+        <div class="btns" style="justify-content:flex-start;margin-top:4px">
+          <button class="btn" type="button" id="checkCa">Check on chain</button>
+          <a class="btn acid" id="announce" href="#" target="_blank" rel="noopener" hidden>Tell the anon on X ↗</a>
+        </div>
+        <div class="out" id="caOut" hidden></div>
+      </form>
+      <div class="sticky">
+        <div class="eyebrow" style="justify-content:flex-start"><i></i>preview</div>
+        <div class="card" id="preview"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="claim" class="dark">
+  <div class="wrap">
+    <div class="eyebrow"><i></i>claim</div>
+    <h2 class="serif">Is that your alt?</h2>
+    <p class="lead">The vault has one key: the account itself. Get a code, post it from the account, paste the post. We read it from X and check it's really you. Then the vault pays your wallet at the next hourly sweep.</p>
+    <div class="two">
+      <form class="form" id="claimForm" autocomplete="off">
+        <label>Your handle<input id="cHandle" placeholder="@anon" maxlength="16" required></label>
+        <label>Wallet to pay<input id="cWallet" placeholder="0x…" maxlength="42" required></label>
+        <div class="out" id="codeBox" hidden><div style="font:600 11px/1 Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)">your code — post it from the account</div><div class="code" id="code"></div><div class="btns" style="justify-content:flex-start;margin:0"><button class="btn" type="button" id="copyCode">Copy code</button><a class="btn fill" id="postCode" href="#" target="_blank" rel="noopener">Post it on X ↗</a></div></div>
+        <label>The post's URL<input id="cUrl" placeholder="https://x.com/anon/status/…"></label>
+        <div class="btns" style="justify-content:flex-start;margin-top:4px"><button class="btn acid" type="button" id="verify">Verify from X</button></div>
+        <div class="out" id="claimOut" hidden></div>
+      </form>
+      <div>
+        <div class="eyebrow" style="justify-content:flex-start"><i></i>claims paid</div>
+        <div id="claimsList"></div>
+        <div class="empty" id="claimsEmpty" style="margin-top:0"><b>No claims yet.</b>The first vault to be claimed is posted here with its transaction.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="rule">
+  <div class="wrap">
+    <div class="eyebrow"><i></i>how it works</div>
+    <h2 class="serif">Three moves.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h3>Launch</h3><p>Pick any anon on X, name the coin, pick the stock it pays in. Launch it on Pons with the ALT description and the ALT vault as fee recipient.</p></div>
+      <div class="step"><div class="n">02</div><h3>Trade</h3><p>Every trade pays 1%. Half waits in the anon's vault. A fifth pays the launcher. The rest is Pons. Swept every hour, posted with the transaction.</p></div>
+      <div class="step"><div class="n">03</div><h3>Reveal</h3><p>Only the account can claim its vault — by posting a code from the account. We read it from X. The only reason to unmask is the money.</p></div>
+    </div>
+    <div class="rule" style="border-color:var(--line)">
+      <div style="border-color:var(--line)"><i>I.</i><span>Every alt is a coin. Anyone can launch one on any anon.</span></div>
+      <div style="border-color:var(--line)"><i>II.</i><span>Every trade pays 1%: half waits for the anon, a fifth pays the launcher, the rest is Pons.</span></div>
+      <div style="border-color:var(--line)"><i>III.</i><span>Only the anon can claim. A post with the code, verified from X.</span></div>
+      <div style="border-color:var(--line)"><i>IV.</i><span>Market cap per follower, not market cap. Read from the chain and from X, never typed in.</span></div>
+    </div>
+    <div class="faq">
+      <details><summary>Does the anon have to agree?</summary><p>No. Anyone can launch a coin on any public account. The account is the pair, not a partner. What the anon gets is a vault that only they can open.</p></details>
+      <details><summary>What if the anon never claims?</summary><p>The vault keeps filling. It is swept to a holding wallet every hour and the balance per alt is shown on its card and in the claims ledger. It waits.</p></details>
+      <details><summary>How do you know it's really them?</summary><p>The code is derived from the handle and the wallet. The account posts it. We read the post from X's public syndication endpoint and check the author and the code. No login, no keys.</p></details>
+      <details><summary>Where does the 1% go?</summary><p>Pons pays 0.7% of every trade to the fee recipient and keeps 0.3%. The recipient for every alt is the ALT vault wallet, which pays 0.2% to the launcher and holds 0.5% for the anon. The ledger is public.</p></details>
+      <details><summary>What is "per follower"?</summary><p>Market cap divided by the account's followers, read live. A $100K coin on a 10K-follower anon is $10 a follower. It's the number to compare alts by.</p></details>
+      <details><summary>Is the split on chain?</summary><p>Not yet. The vault wallet does the split by hand every hour and posts every transaction. The vault contract that does it automatically is the next thing we ship.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="token" class="dark">
+  <div class="wrap">
+    <div class="eyebrow"><i></i>the token</div>
+    <h2 class="serif">The first alt is this account.</h2>
+    <p class="lead">$ALT is a coin on @<span id="tokHandle">useALT</span>, launched the same way as every other alt. It pays in $<span id="tokStock">COIN</span>. Its numbers come from the same readers as the board.</p>
+    <div class="tiles">
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">pays in</div><div class="v">$<span id="tStock">COIN</span></div></div>
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">fee</div><div class="v">1% <small>per trade</small></div></div>
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">the anon's vault</div><div class="v">0.5%</div></div>
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">the launcher</div><div class="v">0.2%</div></div>
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">per follower</div><div class="v" id="tPf">—</div></div>
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">followers</div><div class="v" id="tFol">—</div></div>
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">market cap</div><div class="v" id="tMcap">—</div></div>
+      <div class="tile" style="background:#1B1B20;border-color:#2A2A31;color:#fff"><div class="l">holders</div><div class="v" id="tHold">—</div></div>
+    </div>
+    <div class="ca" id="caRow" hidden style="background:#1B1B20;border-color:#fff;color:#fff"><span>CA</span><span id="caText"></span><button class="btn" type="button" id="copyCa" style="color:#fff;border-color:#fff">Copy</button></div>
+    <div class="btns" id="tokLinks"></div>
+    <p class="note" id="tokNote" style="text-align:center;color:#9A9AA3"></p>
+  </div>
+</section>
+
+<footer><div class="av" id="footAv"></div>alt · every alt is a coin<div class="fl" id="footLinks"><a href="#launch">launch an alt</a><a href="#claim">claim</a></div></footer>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="box"><button class="x" id="sheetX" type="button" aria-label="close">×</button><div id="sheetBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ------------------------------------------------------------------ helpers
+const $ = s => document.querySelector(s);
+const INK = '#111114', CREAM = '#F3F0E6', ACID = '#E4FF47';
+const fmtUsd = v => v == null ? '—' : v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(1) + 'K' : '$' + Number(v).toFixed(v < 10 ? 2 : 0);
+const fmtN = v => v == null ? '—' : Number(v).toLocaleString('en-US');
+const fmtPf = v => v == null ? '—' : v < 0.01 ? (v * 100).toFixed(2) + '¢' : v < 1 ? (v * 100).toFixed(1) + '¢' : '$' + v.toFixed(v < 100 ? 2 : 0);
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 1800); }
+async function copy(t) { try { await navigator.clipboard.writeText(t); toast('Copied'); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Copied'); } }
+function hash(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+function rng(seed) { let s = seed >>> 0 || 1; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }; }
+const isAddr = s => /^0x[0-9a-fA-F]{40}$/.test(s || '');
+const cleanHandle = s => String(s || '').replace(/^@/, '').replace(/[^A-Za-z0-9_]/g, '').slice(0, 15);
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+// the anon: ink disc, cream bust, acid band over the eyes — tilt from the handle
+function anonSVG(seed, opts = {}) {
+  const r = rng(hash(seed || 'anon')); const tilt = (r() - .5) * 10; const band = opts.band || ACID; const face = opts.face || CREAM; const ring = opts.ring || INK;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="c${hash(seed)}"><circle cx="50" cy="50" r="50"/></clipPath></defs>
+  <circle cx="50" cy="50" r="50" fill="${ring}"/>
+  <g clip-path="url(#c${hash(seed)})" transform="rotate(${tilt.toFixed(1)} 50 50)"><ellipse cx="50" cy="39" rx="19" ry="21" fill="${face}"/><rect x="42" y="55" width="16" height="15" fill="${face}"/><rect x="14" y="66" width="72" height="60" rx="22" fill="${face}"/><rect x="24" y="33" width="52" height="12" rx="2" fill="${band}"/></g></svg>`;
+}
+$('#footAv').innerHTML = anonSVG('alt');
+
+// hero crowd — spread across the hero at random depths, a clear band left for the words
+(function crowd() {
+  const c = $('#crowd'); const r = rng(7); const pts = []; let tries = 0;
+  const W = 1, H = 1;
+  while (pts.length < 30 && tries < 5000) {
+    tries++; const x = r() * 1.04 - .02, y = r() * 1.1 - .05, depth = r(); const sz = .06 + .13 * depth;
+    if (y > .08 && y < .88 && x > .10 && x < .90) continue;
+    if (pts.every(p => Math.hypot((x - p.x) * 2.6, y - p.y) > (sz + p.sz) * .9)) pts.push({ x, y, depth, sz, rot: (r() - .5) * 14, delay: -r() * 9 });
+  }
+  pts.sort((a, b) => a.depth - b.depth);
+  c.innerHTML = pts.map((p, i) => `<div class="an" style="left:${(p.x * 100).toFixed(1)}%;top:${(p.y * 100).toFixed(1)}%;width:${(p.sz * 100).toFixed(1)}vw;height:${(p.sz * 100).toFixed(1)}vw;max-width:${Math.round(p.sz * 900)}px;max-height:${Math.round(p.sz * 900)}px;opacity:${(.2 + .55 * p.depth).toFixed(2)};filter:blur(${((1 - p.depth) * 6).toFixed(1)}px);--r:${p.rot.toFixed(1)}deg;animation-delay:${p.delay.toFixed(1)}s;animation-duration:${(8 + p.depth * 4).toFixed(1)}s">${anonSVG('crowd' + i)}</div>`).join('');
+})();
+
+// ------------------------------------------------------------------ chain strip
+async function loadStrip() {
+  try { const j = await (await fetch('/api/chain')).json(); if (j.block) { $('#sBlock').textContent = 'block ' + fmtN(j.block); $('#sGas').textContent = j.gas != null ? Number(j.gas).toFixed(3) + ' gwei' : '—'; } else { $('#sBlock').textContent = 'block —'; } } catch (e) { $('#sBlock').textContent = 'block —'; }
+}
+
+// ------------------------------------------------------------------ the board
+let ALTS = [], SORT = 'pf';
+async function loadBoard() {
+  let reg = []; try { reg = await (await fetch('alts.json?t=' + Date.now())).json(); } catch (e) { }
+  if (!Array.isArray(reg)) reg = [];
+  ALTS = reg.map(a => ({ ...a, live: null, x: null }));
+  renderBoard(); updateStrip();
+  await Promise.all(ALTS.map(async a => {
+    try { a.live = await (await fetch('/api/coin?ca=' + a.ca)).json(); } catch (e) { a.live = { error: true }; }
+    try { a.x = await (await fetch('/api/handle?h=' + encodeURIComponent(a.handle))).json(); } catch (e) { a.x = { error: true }; }
+  }));
+  renderBoard(); updateStrip();
+}
+function pf(a) { const m = a.live && a.live.mcap, f = a.x && a.x.followers; return (m && f) ? m / f : null; }
+function updateStrip() {
+  $('#sAlts').textContent = ALTS.length ? String(ALTS.length) : '0';
+  $('#sUnclaimed').textContent = ALTS.length ? String(ALTS.filter(a => !a.claimed).length) : '0';
+  const v = ALTS.reduce((s, a) => s + ((a.live && a.live.vaultIncome24) || 0), 0);
+  $('#sVault').textContent = ALTS.some(a => a.live && a.live.vaultIncome24 != null) ? fmtUsd(v) : '—';
+}
+function altCard(a, preview) {
+  const L = a.live || {}, X = a.x || {};
+  const p = pf(a);
+  const trade = a.pool || (a.ca ? `https://ponsfamily.com/launchpad/${a.ca}` : ''), chart = L.chart || (a.ca ? `https://dexscreener.com/robinhood/${a.ca}` : '');
+  return `<div class="top"><div class="av">${anonSVG(a.handle)}</div><div class="who"><b>@${esc(a.handle || 'anon')}</b><span>$${esc(a.ticker || 'TICK')} · ${esc(a.name || '')}</span></div></div>
+  <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap"><span class="chip acid">pays in $${esc(a.stock || '—')}</span>${a.ca ? (a.claimed ? '<span class="chip ok">claimed</span>' : '<span class="chip ink">unclaimed</span>') : ''}${a.listed ? `<span class="chip">listed ${esc(a.listed)}</span>` : ''}</div>
+  <div class="head"><b>${fmtPf(p)}</b><span>per follower${p == null && a.ca ? (X.followers == null ? ' · followers unavailable' : L.dex === 'no pair yet' ? ' · no pair yet' : ' · reading…') : ''}</span></div>
+  <div class="stats">
+    <div><span>followers</span><b>${fmtN(X.followers)}</b></div>
+    <div><span>market cap</span><b>${fmtUsd(L.mcap)}</b></div>
+    <div><span>holders</span><b>${fmtN(L.holders)}</b></div>
+    <div><span>vault · 24h</span><b>${fmtUsd(L.vaultIncome24)}</b></div>
+  </div>
+  ${preview ? '' : `<div class="links"><a href="https://x.com/${esc(a.handle)}" target="_blank" rel="noopener">the alt ↗</a>${trade ? `<a href="${trade}" target="_blank" rel="noopener">trade ↗</a>` : ''}${chart ? `<a href="${chart}" target="_blank" rel="noopener">chart ↗</a>` : ''}<button type="button" data-open="${esc(a.ca || '')}">details</button></div>`}`;
+}
+function renderBoard() {
+  const b = $('#board'), e = $('#boardEmpty');
+  if (!ALTS.length) { b.innerHTML = ''; e.hidden = false; return; }
+  e.hidden = true;
+  const arr = ALTS.slice(); const v = (a, k) => (a.live && a.live[k] != null) ? a.live[k] : -1;
+  if (SORT === 'pf') arr.sort((a, b) => (pf(b) || -1) - (pf(a) || -1));
+  if (SORT === 'mcap') arr.sort((a, b) => v(b, 'mcap') - v(a, 'mcap'));
+  if (SORT === 'vault') arr.sort((a, b) => v(b, 'vaultIncome24') - v(a, 'vaultIncome24'));
+  if (SORT === 'unclaimed') arr.sort((a, b) => (a.claimed ? 1 : 0) - (b.claimed ? 1 : 0));
+  if (SORT === 'new') arr.sort((a, b) => String(b.listed || '').localeCompare(String(a.listed || '')));
+  b.innerHTML = arr.map(a => `<div class="card">${altCard(a)}</div>`).join('');
+}
+$('#sort').addEventListener('click', e => { const k = e.target.dataset.k; if (!k) return; if (k === 'refresh') { toast('Reading X and the chain…'); loadBoard(); return; } SORT = k; document.querySelectorAll('#sort button').forEach(x => x.classList.toggle('on', x.dataset.k === k)); renderBoard(); });
+$('#board').addEventListener('click', e => { const t = e.target.closest('[data-open]'); if (t) openSheet(t.dataset.open); });
+function openSheet(ca) {
+  const a = ALTS.find(q => q.ca === ca); if (!a) return; const L = a.live || {}, X = a.x || {};
+  $('#sheetBody').innerHTML = `<div class="top"><div class="av" style="width:84px;height:84px">${anonSVG(a.handle)}</div><div class="who"><b style="font-size:26px">@${esc(a.handle)}</b><span>$${esc(a.ticker)} · ${esc(a.name || '')} · pays in $${esc(a.stock)}</span></div></div>
+  <div class="head"><b>${fmtPf(pf(a))}</b><span>per follower</span></div>
+  <div class="kv" style="margin:14px 0">
+    <span>followers</span><b>${fmtN(X.followers)}${X.name ? ' · ' + esc(X.name) : ''}</b>
+    <span>market cap</span><b>${fmtUsd(L.mcap)}</b>
+    <span>liquidity</span><b>${fmtUsd(L.liquidity)}</b>
+    <span>24h volume</span><b>${fmtUsd(L.volume24)}</b>
+    <span>vault · 24h</span><b>${fmtUsd(L.vaultIncome24)} <small style="color:var(--mute)">(0.5%)</small></b>
+    <span>launcher · 24h</span><b>${fmtUsd(L.launcherIncome24)} <small style="color:var(--mute)">(0.2%)</small></b>
+    <span>holders</span><b>${fmtN(L.holders)}</b>
+    <span>status</span><b>${a.claimed ? 'claimed · paid to ' + esc(a.claimed) : 'unclaimed — the vault waits'}</b>
+    <span>launcher</span><b>${a.launcher ? esc(a.launcher) : '—'}</b>
+    <span>address</span><b>${esc(a.ca)} <button class="btn" style="padding:6px 10px;font-size:12px" type="button" onclick="copy('${esc(a.ca)}')">copy</button></b>
+  </div>
+  <div class="links"><a href="https://x.com/${esc(a.handle)}" target="_blank" rel="noopener">the alt ↗</a><a href="${a.pool || 'https://ponsfamily.com/launchpad/' + a.ca}" target="_blank" rel="noopener">trade ↗</a><a href="${L.chart || 'https://dexscreener.com/robinhood/' + a.ca}" target="_blank" rel="noopener">chart ↗</a><a href="https://robinhoodchain.blockscout.com/token/${a.ca}?tab=holders" target="_blank" rel="noopener">holders ↗</a></div>`;
+  $('#sheet').classList.add('show');
+}
+$('#sheetX').addEventListener('click', () => $('#sheet').classList.remove('show'));
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') $('#sheet').classList.remove('show'); });
+addEventListener('keydown', e => { if (e.key === 'Escape') $('#sheet').classList.remove('show'); });
+
+// ------------------------------------------------------------------ launch
+const sel = $('#fStock'); sel.innerHTML = STOCKS.map(s => `<option ${s === CONFIG.stock ? 'selected' : ''}>${s}</option>`).join('');
+$('#fVault').value = CONFIG.vault || 'announced at launch';
+let HX = null, hTimer = null;
+function formState() { return { handle: cleanHandle($('#fHandle').value), name: $('#fName').value.trim(), ticker: $('#fTicker').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''), stock: sel.value, wallet: $('#fWallet').value.trim() }; }
+function updateForm() {
+  const f = formState(); $('#fTicker').value = f.ticker;
+  $('#fDesc').value = `ALT · @${f.handle || 'anon'} · pays in $${f.stock} · launcher ${isAddr(f.wallet) ? f.wallet : '0x…'} · every trade pays 1%: 0.5% waits in the anon's vault, 0.2% to the launcher, 0.3% to Pons · every alt is a coin.`;
+  $('#preview').innerHTML = altCard({ handle: f.handle || 'anon', name: f.name || 'Anon Coin', ticker: f.ticker || 'ANON', stock: f.stock, x: HX && HX.handle && HX.handle.toLowerCase() === f.handle.toLowerCase() ? HX : null }, true);
+}
+async function checkHandle() {
+  const h = cleanHandle($('#fHandle').value); const box = $('#hcheck');
+  if (!h) { HX = null; box.innerHTML = '<span>Type a handle and we read it from X.</span>'; updateForm(); return; }
+  box.innerHTML = `<div class="av">${anonSVG(h)}</div><span>reading @${esc(h)} from X…</span>`;
+  try {
+    const j = await (await fetch('/api/handle?h=' + encodeURIComponent(h))).json();
+    HX = j;
+    box.innerHTML = `<div class="av">${anonSVG(h)}</div><span>@${esc(h)}${j.name ? ' · ' + esc(j.name) : ''} · ${j.followers != null ? fmtN(j.followers) + ' followers' : 'followers not exposed by X for this account — the card will say so'}</span>`;
+  } catch (e) { HX = null; box.innerHTML = `<div class="av">${anonSVG(h)}</div><span>@${esc(h)} · X reader unreachable right now</span>`; }
+  updateForm();
+}
+$('#fHandle').addEventListener('input', () => { updateForm(); clearTimeout(hTimer); hTimer = setTimeout(checkHandle, 500); });
+['fName', 'fTicker', 'fStock', 'fWallet'].forEach(id => $('#' + id).addEventListener('input', updateForm));
+$('#copyDesc').addEventListener('click', () => copy($('#fDesc').value));
+$('#copyVault').addEventListener('click', () => { if (CONFIG.vault) copy(CONFIG.vault); else toast('The vault address is announced at launch'); });
+$('#openPons').href = CONFIG.launchpad;
+$('#launchForm').addEventListener('submit', e => e.preventDefault());
+$('#checkCa').addEventListener('click', async () => {
+  const ca = $('#fCa').value.trim(); const out = $('#caOut'); const ann = $('#announce'); out.hidden = false; ann.hidden = true; out.className = 'out';
+  if (!isAddr(ca)) { out.classList.add('bad'); out.textContent = 'That is not a contract address (0x + 40 hex characters).'; return; }
+  out.textContent = 'Reading Blockscout and Dexscreener…';
+  try {
+    const L = await (await fetch('/api/coin?ca=' + ca)).json(); if (L.error) throw new Error(L.error);
+    const f = formState();
+    out.classList.add(L.name ? 'ok' : 'bad');
+    out.innerHTML = `<div class="kv"><span>name</span><b>${esc(L.name || 'not indexed yet')}</b><span>symbol</span><b>${esc(L.symbol || '—')}</b><span>holders</span><b>${fmtN(L.holders)}</b><span>market cap</span><b>${fmtUsd(L.mcap)}${L.dex === 'no pair yet' ? ' (no Dexscreener pair yet)' : ''}</b><span>address</span><b>${esc(ca)}</b></div><p class="note">${L.name ? 'Found. Tell the anon, and we list it once the description and the fee recipient check out.' : 'Not indexed yet — a fresh launch can take a few minutes. Try again shortly.'}</p>`;
+    const tweet = `Someone launched a coin on your alt, @${f.handle || 'anon'}.\n\n$${L.symbol || f.ticker || 'TICK'} on ALT — every trade pays your vault. Only you can claim it.\n\nCA: ${ca}\n${location.origin}${location.pathname}#claim`;
+    ann.href = 'https://x.com/intent/tweet?text=' + encodeURIComponent(tweet); ann.hidden = false;
+  } catch (e) { out.classList.add('bad'); out.textContent = 'The reader could not reach the chain: ' + (e.message || e); }
+});
+updateForm();
+
+// ------------------------------------------------------------------ claim
+function claimCode(handle, wallet) { const h = hash(handle.toLowerCase() + '|' + wallet.toLowerCase()); return 'ALT-' + h.toString(36).toUpperCase().padStart(7, '0').slice(0, 7); }
+function updateClaim() {
+  const h = cleanHandle($('#cHandle').value), w = $('#cWallet').value.trim(); const box = $('#codeBox');
+  if (!h || !isAddr(w)) { box.hidden = true; return; }
+  const code = claimCode(h, w); $('#code').textContent = code; box.hidden = false;
+  $('#postCode').href = 'https://x.com/intent/tweet?text=' + encodeURIComponent(`${code}\n\nclaiming my alt on ALT. every alt is a coin.`);
+  $('#copyCode').onclick = () => copy(code);
+}
+['cHandle', 'cWallet'].forEach(id => $('#' + id).addEventListener('input', updateClaim));
+$('#claimForm').addEventListener('submit', e => e.preventDefault());
+$('#verify').addEventListener('click', async () => {
+  const h = cleanHandle($('#cHandle').value), w = $('#cWallet').value.trim(), url = $('#cUrl').value.trim(); const out = $('#claimOut'); out.hidden = false; out.className = 'out';
+  if (!h || !isAddr(w)) { out.classList.add('bad'); out.textContent = 'Handle and a valid wallet first — that is what the code is made from.'; return; }
+  const m = url.match(/status(?:es)?\/(\d{1,25})/); if (!m) { out.classList.add('bad'); out.textContent = 'Paste the URL of the post that contains the code.'; return; }
+  out.textContent = 'Reading the post from X…';
+  try {
+    const t = await (await fetch('/api/tweet?id=' + m[1])).json(); const code = claimCode(h, w);
+    if (!t.author) throw new Error('X did not return that post — is it public?');
+    const authorOk = t.author.toLowerCase() === h.toLowerCase(), codeOk = String(t.text || '').toUpperCase().includes(code);
+    if (authorOk && codeOk) {
+      out.classList.add('ok');
+      out.innerHTML = `<div class="kv"><span>account</span><b>@${esc(t.author)} ✓</b><span>code</span><b>${code} ✓</b><span>wallet</span><b>${esc(w)}</b></div><p class="note"><b>Verified.</b> The vault for @${esc(h)} pays ${esc(w)} at the next hourly sweep. The transaction is posted here and on X. Tell the world:</p><div class="btns" style="justify-content:flex-start;margin:8px 0 0"><a class="btn acid" target="_blank" rel="noopener" href="https://x.com/intent/tweet?text=${encodeURIComponent(`I claimed my alt on ALT. code ${code} verified.\n\n${location.origin}${location.pathname}`)}">Post the reveal ↗</a></div>`;
+    } else { out.classList.add('bad'); out.innerHTML = `<div class="kv"><span>account</span><b>@${esc(t.author)} ${authorOk ? '✓' : '✗ — not @' + esc(h)}</b><span>code</span><b>${codeOk ? code + ' ✓' : 'not in the post ✗'}</b></div>`; }
+  } catch (e) { out.classList.add('bad'); out.textContent = 'Could not verify: ' + (e.message || e); }
+});
+async function loadClaims() {
+  let rows = []; try { rows = await (await fetch('claims.json?t=' + Date.now())).json(); } catch (e) { }
+  if (!Array.isArray(rows) || !rows.length) return;
+  $('#claimsEmpty').hidden = true;
+  $('#claimsList').innerHTML = rows.slice().reverse().map(r => `<div class="card" style="margin-bottom:12px"><div class="top"><div class="av">${anonSVG(r.handle)}</div><div class="who"><b>@${esc(r.handle)}</b><span>${esc(r.t || '')} · ${esc(r.amount || '')} ${esc(r.stock || '')}${r.tx ? ` · <a href="${esc(r.tx)}" target="_blank" rel="noopener">tx ↗</a>` : ''}</span></div></div></div>`).join('');
+}
+
+// ------------------------------------------------------------------ token
+async function loadToken() {
+  $('#tStock').textContent = CONFIG.stock; $('#tokStock').textContent = CONFIG.stock; $('#emptyStock').textContent = CONFIG.stock; $('#tokHandle').textContent = CONFIG.handle; $('#emptyHandle').textContent = CONFIG.handle;
+  const links = [];
+  if (CONFIG.x) { links.push(`<a class="btn" href="${CONFIG.x}" target="_blank" rel="noopener" style="color:#fff;border-color:#fff">X ↗</a>`); $('#footLinks').insertAdjacentHTML('beforeend', `<a href="${CONFIG.x}" target="_blank" rel="noopener">X ↗</a>`); }
+  if (CONFIG.pool) { links.push(`<a class="btn acid" href="${CONFIG.pool}" target="_blank" rel="noopener">Trade $ALT ↗</a>`); $('#heroTrade').href = CONFIG.pool; $('#heroTrade').target = '_blank'; }
+  if (CONFIG.chart) links.push(`<a class="btn" href="${CONFIG.chart}" target="_blank" rel="noopener" style="color:#fff;border-color:#fff">Chart ↗</a>`);
+  $('#tokLinks').innerHTML = links.join('');
+  if (CONFIG.ca) {
+    $('#caRow').hidden = false; $('#caText').textContent = CONFIG.ca; $('#copyCa').onclick = () => copy(CONFIG.ca);
+    $('#heroCa').hidden = false; $('#heroCa').onclick = () => copy(CONFIG.ca);
+    try {
+      const [L, X] = await Promise.all([(await fetch('/api/coin?ca=' + CONFIG.ca)).json(), (await fetch('/api/handle?h=' + CONFIG.handle)).json()]);
+      $('#tMcap').textContent = fmtUsd(L.mcap); $('#tHold').textContent = fmtN(L.holders); $('#tFol').textContent = fmtN(X.followers); $('#tPf').textContent = fmtPf(L.mcap && X.followers ? L.mcap / X.followers : null);
+      $('#tokNote').textContent = L.dex === 'no pair yet' ? 'No Dexscreener pair yet — the numbers appear once the first trades settle.' : '';
+    } catch (e) { $('#tokNote').textContent = 'The readers could not reach X or the chain right now.'; }
+  } else { $('#tokNote').textContent = 'The address appears here at launch.'; $('#heroTrade').textContent = 'Launch on Pons ↗'; $('#heroTrade').href = CONFIG.launchpad; $('#heroTrade').target = '_blank'; }
+}
+
+// ------------------------------------------------------------------ sound: a low anonymous pad (synthesized)
+let AC = null, SND = null;
+function sound(on) {
+  const b = $('#snd'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'snd ●' : 'snd';
+  if (!on) { if (SND) { SND.gain.gain.linearRampToValueAtTime(0, AC.currentTime + .6); const s = SND; SND = null; setTimeout(() => { try { s.nodes.forEach(n => n.stop && n.stop()); clearTimeout(s.t); } catch (e) { } }, 700); } return; }
+  AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume();
+  const gain = AC.createGain(); gain.gain.value = 0; gain.connect(AC.destination); gain.gain.linearRampToValueAtTime(.16, AC.currentTime + 2.5);
+  const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; lp.connect(gain);
+  const chords = [[110, 164.81, 196, 246.94], [98, 146.83, 196, 220], [87.31, 130.81, 174.61, 220], [103.83, 155.56, 196, 233.08]];
+  const nodes = [], oscs = chords[0].map(f => { const o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = f; const g = AC.createGain(); g.gain.value = .11; o.connect(g); g.connect(lp); o.start(); nodes.push(o); return o; });
+  let ci = 0; const step = () => { if (!SND) return; ci = (ci + 1) % chords.length; oscs.forEach((o, i) => o.frequency.linearRampToValueAtTime(chords[ci][i], AC.currentTime + 2)); SND.t = setTimeout(step, 7000); };
+  SND = { gain, nodes, t: setTimeout(step, 7000) };
+}
+$('#snd').addEventListener('click', () => sound(!SND));
+
+// ------------------------------------------------------------------ nav state + reveal + boot
+const secIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-40% 0px -55% 0px' });
+document.querySelectorAll('section[id]').forEach(s => secIO.observe(s));
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .1 });
+document.querySelectorAll('section .wrap > *').forEach(el => { el.classList.add('rv'); io.observe(el); });
+setTimeout(() => document.querySelectorAll('.rv').forEach(el => el.classList.add('in')), 4000);
+loadStrip(); loadBoard(); loadClaims(); loadToken();
+setInterval(loadStrip, 60000); setInterval(loadBoard, 90000);
+</script>
+</body>
+</html>
