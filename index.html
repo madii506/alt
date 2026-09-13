@@ -74,9 +74,6 @@ section[id]{scroll-margin-top:24px}
 .hero h1{font-size:clamp(60px,8.4vw,132px)}
 .hero .sub{font-size:clamp(17px,1.6vw,20px);color:#2B2B30;max-width:520px;margin-top:22px}
 .hero .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
-.hero .stat{margin:26px 0 0;font:600 13px/1.6 Inter;color:var(--mute);font-variant-numeric:tabular-nums}
-.hero .stat b{color:var(--ink);font-weight:800}
-.hero .stat i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acid);box-shadow:0 0 0 3px rgba(228,255,71,.35);margin:0 10px 1px 0;vertical-align:middle}
 /* the live alt card */
 .altcard{background:var(--paper);border:1px solid var(--line);border-radius:26px;padding:26px;box-shadow:0 30px 70px rgba(17,17,20,.12);position:relative;transform:rotate(-1.2deg)}
 .altcard .top{display:flex;align-items:center;gap:16px}
@@ -197,7 +194,6 @@ footer .av{width:44px;height:44px;margin:0 auto 12px}
       <h1 class="serif">Every alt<br>is a coin.</h1>
       <p class="sub">Launch a coin on any anon account. Every trade pays the anon's vault. The anon claims it only by revealing. Priced per follower.</p>
       <div class="btns"><a class="btn acid" href="#launch">Launch an alt</a><a class="btn" href="#alts">See the alts</a></div>
-      <p class="stat" id="heroStat">reading the board…</p>
     </div>
     <div class="altcard" id="heroCard"><span class="chip ink tag">live from X</span><div class="top"><div class="av" style="width:76px;height:76px"></div><div class="who"><b>reading…</b><span>&nbsp;</span></div></div><div class="num"><b>—</b><span>followers</span></div></div>
   </div>
@@ -258,7 +254,7 @@ footer .av{width:44px;height:44px;margin:0 auto 12px}
 
 <section id="how">
   <div class="wrap ed">
-    <div class="t"><h2 class="serif">The rule.</h2><p class="lead">Four lines. Everything on this page follows from them.</p></div>
+    <div class="t"><h2 class="serif">The rule.</h2></div>
     <div>
       <div class="rule">
         <div><i>I.</i><span>Every alt is a coin. Anyone can launch one on any anon.</span></div>
@@ -323,16 +319,8 @@ async function loadBoard() {
   await Promise.all(ALTS.map(async a => {
     a.x = await readX(a.handle);
     if (a.coin) { try { a.live = await (await fetch('/api/coin?ca=' + a.coin.ca)).json(); } catch (e) { a.live = { error: true }; } }
-    renderList(); renderWall(); renderHero(); renderStat();
+    renderList(); renderWall(); renderHero();
   }));
-  renderStat();
-}
-let CLAIMS = 0;
-function renderStat() {
-  const read = ALTS.filter(a => a.x && a.x.followers != null), coins = ALTS.filter(a => a.coin).length, waiting = ALTS.filter(a => a.coin && !a.coin.claimed).length;
-  if (!read.length) { $('#heroStat').innerHTML = ALTS.length ? `<i></i>reading ${ALTS.length} alts from X…` : '<i></i>reading the board…'; return; }
-  const fol = read.reduce((n, a) => n + a.x.followers, 0);
-  $('#heroStat').innerHTML = `<i></i><b>${ALTS.length}</b> alts on the board · <b>${fmtN(fol)}</b> followers between them · <b>${coins}</b> coin${coins === 1 ? '' : 's'} launched · <b>${waiting}</b> vault${waiting === 1 ? '' : 's'} waiting · <b>${CLAIMS}</b> claimed`;
 }
 const pf = a => (a.live && a.live.mcap && a.x && a.x.followers) ? a.live.mcap / a.x.followers : null;
 function renderList() {
@@ -475,7 +463,6 @@ $('#verify').addEventListener('click', async () => {
 async function loadClaims() {
   let rows = []; try { rows = await (await fetch('claims.json?t=' + Date.now())).json(); } catch (e) { }
   if (!Array.isArray(rows) || !rows.length) return;
-  CLAIMS = rows.length; renderStat();
   $('#claimsEmpty').hidden = true;
   $('#claimsList').innerHTML = rows.slice().reverse().map(r => `<div class="tl" style="grid-template-columns:1fr;margin-bottom:10px"><div><b>@${esc(r.handle)}</b><p>${esc(r.t || '')} · ${esc(r.amount || '')} ${esc(r.stock || '')}${r.tx ? ` · <a href="${esc(r.tx)}" target="_blank" rel="noopener">tx ↗</a>` : ''}</p></div></div>`).join('');
 }
